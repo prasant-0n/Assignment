@@ -1,141 +1,144 @@
-import React from 'react';
+import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import InputField from './InputField';
+import AddressInputField from './AddressInputField';
+ interface FormData {
+  name: string;
+  phone: string;
+  email: string;
+  area: string;
+  city: string;
+  state: string;
+  postCode: string;
+}
+
 
 const Form: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    phone: '',
+    email: '',
+    area: '',
+    city: '',
+    state: '',
+    postCode: ''
+  });
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    // Autogenerate user ID
+    const userId = Math.floor(Math.random() * 1000000);
+    // Save data to local storage or RTK
+    // Here, we'll use local storage
+    localStorage.setItem(`user_${userId}`, JSON.stringify(formData));
+    // Reset form data
+    setFormData({
+      name: '',
+      phone: '',
+      email: '',
+      area: '',
+      city: '',
+      state: '',
+      postCode: ''
+    });
+  };
+
+  useEffect(() => {
+    // Show confirmation pop-up if there are unsaved changes
+    window.addEventListener('beforeunload', (e) => {
+      if (Object.values(formData).some((value) => value !== '')) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+  }, [formData]);
+
   return (
-    <div className="flex items-center justify-center p-12">
-      {/* Author: FormBold Team */}
+    <div className="flex items-center justify-center p-4 md:p-12">
       <div
-        className=" p-16 mx-auto w-full max-w-[550px] bg-white shadow-lg rounded-lg"
-        style={{ boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)' }}
+        className="p-6 md:p-16 mx-auto w-full max-w-[500px] bg-white shadow-2xl rounded-lg"
+        style={{ boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.6)' }}
       >
-      <div className="mx-auto w-full max-w-[550px] bg-white">
-        <form>
-          <div className="mb-5">
-            <label htmlFor="name" className="mb-3 block text-base font-medium text-[#07074D]">
-              Full Name
-            </label>
-            <input
-              type="text"
+        <div className="mx-auto w-full max-w-[500px] bg-white">
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <InputField
+              label="Full Name"
               name="name"
               id="name"
               placeholder="Full Name"
-              className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+              value={formData.name}
+              onChange={handleChange}
             />
-          </div>
-          <div className="mb-5">
-            <label htmlFor="phone" className="mb-3 block text-base font-medium text-[#07074D]">
-              Phone Number
-            </label>
-            <input
-              type="text"
+            <InputField
+              label="Phone Number"
               name="phone"
               id="phone"
               placeholder="Enter your phone number"
-              className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+              value={formData.phone}
+              onChange={handleChange}
             />
-          </div>
-          <div className="mb-5">
-            <label htmlFor="email" className="mb-3 block text-base font-medium text-[#07074D]">
-              Email Address
-            </label>
-            <input
-              type="email"
+            <InputField
+              label="Email Address"
               name="email"
               id="email"
               placeholder="Enter your email"
-              className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+              value={formData.email}
+              onChange={handleChange}
             />
-          </div>
-          {/* <div className="-mx-3 flex flex-wrap">
-            <div className="w-full px-3 sm:w-1/2">
-              <div className="mb-5">
-                <label htmlFor="date" className="mb-3 block text-base font-medium text-[#07074D]">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  name="date"
-                  id="date"
-                  className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+            <div className="mb-5 pt-3">
+              <label className="block text-base font-medium text-blue-900">Address Details</label>
+              <div className="-mx-3 flex flex-wrap">
+                <AddressInputField
+                  label="Enter area"
+                  name="area"
+                  id="area"
+                  placeholder="Enter area"
+                  value={formData.area}
+                  onChange={handleChange}
+                />
+                <AddressInputField
+                  label="Enter city"
+                  name="city"
+                  id="city"
+                  placeholder="Enter city"
+                  value={formData.city}
+                  onChange={handleChange}
+                />
+                <AddressInputField
+                  label="Enter state"
+                  name="state"
+                  id="state"
+                  placeholder="Enter state"
+                  value={formData.state}
+                  onChange={handleChange}
+                />
+                <AddressInputField
+                  label="Post Code"
+                  name="postCode"
+                  id="post-code"
+                  placeholder="Post Code"
+                  value={formData.postCode}
+                  onChange={handleChange}
                 />
               </div>
             </div>
-            <div className="w-full px-3 sm:w-1/2">
-              <div className="mb-5">
-                <label htmlFor="time" className="mb-3 block text-base font-medium text-[#07074D]">
-                  Time
-                </label>
-                <input
-                  type="time"
-                  name="time"
-                  id="time"
-                  className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
-                />
-              </div>
+            <div>
+              <button
+                type="submit"
+                className="hover:shadow-form w-full rounded-md bg-purple-600 py-3 px-8 text-center text-base font-semibold text-white outline-none"
+              >
+                Submit
+              </button>
             </div>
-          </div> */}
-
-          <div className="mb-5 pt-3">
-            <label className="mb-5 block text-base font-semibold text-[#07074D] sm:text-xl">
-              Address Details
-            </label>
-            <div className="-mx-3 flex flex-wrap">
-              <div className="w-full px-3 sm:w-1/2">
-                <div className="mb-5">
-                  <input
-                    type="text"
-                    name="area"
-                    id="area"
-                    placeholder="Enter area"
-                    className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
-                  />
-                </div>
-              </div>
-              <div className="w-full px-3 sm:w-1/2">
-                <div className="mb-5">
-                  <input
-                    type="text"
-                    name="city"
-                    id="city"
-                    placeholder="Enter city"
-                    className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
-                  />
-                </div>
-              </div>
-              <div className="w-full px-3 sm:w-1/2">
-                <div className="mb-5">
-                  <input
-                    type="text"
-                    name="state"
-                    id="state"
-                    placeholder="Enter state"
-                    className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
-                  />
-                </div>
-              </div>
-              <div className="w-full px-3 sm:w-1/2">
-                <div className="mb-5">
-                  <input
-                    type="text"
-                    name="post-code"
-                    id="post-code"
-                    placeholder="Post Code"
-                    className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <button
-              className="hover:shadow-form w-full rounded-md bg-[#6A64F1] py-3 px-8 text-center text-base font-semibold text-white outline-none"
-            >
-              Submit
-            </button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
       </div>
     </div>
   );
