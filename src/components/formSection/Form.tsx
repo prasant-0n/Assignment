@@ -1,7 +1,9 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+// import Editor from '../../utils/Editor'; // Assuming you have an Editor component
 import InputField from './InputField';
 import AddressInputField from './AddressInputField';
- interface FormData {
+
+interface FormData {
   name: string;
   phone: string;
   email: string;
@@ -11,8 +13,12 @@ import AddressInputField from './AddressInputField';
   postCode: string;
 }
 
+interface FormProps {
+  userId: number; // Define the type for userId prop
+  onSubmit: () => void; // Define the type for onSubmit prop
+}
 
-const Form: React.FC = () => {
+const Form: React.FC<FormProps> = ({ userId,onSubmit }) => {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     phone: '',
@@ -22,6 +28,17 @@ const Form: React.FC = () => {
     state: '',
     postCode: ''
   });
+
+  useEffect(() => {
+    // Check if user data exists in local storage
+    const storedData = localStorage.getItem('userFormData');
+    console.log(storedData)
+    if (storedData) {
+      // If user data exists, parse and set it to state
+      setFormData(JSON.parse(storedData));
+      console.log(setFormData)
+    }
+  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -34,11 +51,11 @@ const Form: React.FC = () => {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     // Autogenerate user ID
-    const userId = Math.floor(Math.random() * 1000000);
-    // Save data to local storage or RTK
-    // Here, we'll use local storage
+    onSubmit();
     localStorage.setItem(`user_${userId}`, JSON.stringify(formData));
-    // Reset form data
+    const storedData = localStorage.getItem(`user_${userId}`);
+    console.log(storedData)
+
     setFormData({
       name: '',
       phone: '',
@@ -49,16 +66,6 @@ const Form: React.FC = () => {
       postCode: ''
     });
   };
-
-  useEffect(() => {
-    // Show confirmation pop-up if there are unsaved changes
-    window.addEventListener('beforeunload', (e) => {
-      if (Object.values(formData).some((value) => value !== '')) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    });
-  }, [formData]);
 
   return (
     <div className="flex items-center justify-center p-4 md:p-12">
@@ -140,6 +147,9 @@ const Form: React.FC = () => {
           </form>
         </div>
       </div>
+      {/* <div className="flex items-center justify-center p-4 md:p-12">
+        <Editor formData={formData} />
+      </div> */}
     </div>
   );
 };
